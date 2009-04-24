@@ -8,10 +8,10 @@ GCC = gcc -Wall -std=c99
 # Объектные файлы проекта
 LIBOBJ = long_arithmetic.o
 MAINOBJ = main.o
-CALCOBJ = calc.o
+CALCOBJ = stack.o calc.o
 
 # Тестирующий исполняемый файл
-TESTER = long_arithmetics_tests.rb
+TESTER = long_arithmetic_tests.rb
 
 # Имена выходных исполняемых бинарных файлов
 OUTPUT_BIN_NAME = "longa"
