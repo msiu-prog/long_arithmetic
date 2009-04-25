@@ -54,8 +54,6 @@ class LongArithmeticsTest < Test::Unit::TestCase
   end
 
   def test_start_exit
-    sendcmd EXITCMD
-    @process.readlines
   end
   
   def test_sendnum
