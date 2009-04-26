@@ -66,6 +66,7 @@ void mp_stack_push(struct mp_stack *st, void *obj) {
     }
     st->array[st->head+1] = obj;
     st->head += 1;
+    st->size += 1;
   } else {
     // must generate some error
   }
