@@ -9,6 +9,8 @@
 
 #define EXITCMD 'q'
 
+#define MINUSCMD '~'
+
 #define ADDCMD '+'
 #define SUBCMD '-'
 #define MULTCMD '*'
@@ -225,6 +227,9 @@ int main(int argc, char *argv[]) {
       case SPLITCMD3 :
         // printf("split character\n");
         calc_push();
+        break;
+      case MINUSCMD :
+        concatenate_char_to_number((char)retval); 
         break;
       default :
         other_char((char)retval);
