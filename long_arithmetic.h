@@ -4,6 +4,13 @@
 #define FLG_NEGATIVE 0x01
 #define FLG_ZERO     0x02
 
+#define SET_NUM_FLG(num, flg) {(num)->flags = (num)->flags | (flg);}
+#define UNSET_NUM_FLG(num, flg) {(num)->flags = (num)->flags ^ (flg);}
+
+#define ISSET_NUM_FLG(num, flg) ((num)->flags == ((num)->flags | (flg)))
+
+#define DEFAUL_DIGITS_SIZE 4
+
 typedef struct long_num
 {
   int flags;
