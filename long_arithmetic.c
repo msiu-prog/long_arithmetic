@@ -3,12 +3,17 @@
 
 #include "long_arithmetic.h"
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+#define CLEAR_ALL  0
+#define CLEAR_TAIL 1
 
 long_num* ln_create(void) {
   // needs correction
   long_num *p;
   
-  p = (long_num *)malloc(sizeof(long_num));
+  p = (long_num *) malloc(sizeof(long_num));
   if(p == NULL) {
     // no memory error
     return NULL;
@@ -29,6 +34,7 @@ long_num* ln_create(void) {
   
   return p;
 }
+
 void ln_destroy(long_num *num) {
   // needs correction
   if(num == NULL) {
@@ -69,8 +75,8 @@ long_num* ln_create_from_hex_string(char *str, int len) {
     ++str; 
   }
   
-  p->size = (((len+1)>>1)+sizeof(unsigned int)-1)/sizeof(unsigned int);
-  p->digits = malloc(p->size*sizeof(unsigned int));
+  p->size = (((len + 1) >> 1) + sizeof(unsigned int) - 1)/sizeof(unsigned int);
+  p->digits = malloc(p->size * sizeof(unsigned int));
   
   if(p->digits == NULL) {
     // no memory error
@@ -78,11 +84,11 @@ long_num* ln_create_from_hex_string(char *str, int len) {
     return NULL;
   }
   
-  high = p->digits+p->size-1;
-  for(strptr = str+len-1, d = p->digits; d <= high; ++d) {
+  high = p->digits + p->size - 1;
+  for(strptr = str + len - 1, d = p->digits; d <= high; ++d) {
     digit = 0;
     for(i = 0; i < 8*sizeof(unsigned int) && strptr >= str; i += 4) {
-      hex = *strptr-((*strptr >= '0' && *strptr <= '9') ? '0' : ('a'-10));
+      hex = *strptr - ((*strptr >= '0' && *strptr <= '9') ? '0' : ('a' - 10));
       digit = digit | (hex << i);
       --strptr;
     }
@@ -95,29 +101,91 @@ long_num* ln_create_from_hex_string(char *str, int len) {
 void ln_add(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
 }
+
 void ln_sub(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
 }
+
 void ln_mult(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
 }
+
 void ln_div(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
 }
+
 void ln_mod(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
 }
+
 void ln_exp(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
+}
+
+void ln_low_add(const long_num *f, const long_num *s, long_num *res) {
+  // needs implementation
+  unsigned long long sum_digits;
+  unsigned int *f_d, *s_d, *res_d;
+  unsigned int *high_min, *high_max;
+  
+  ln_extend_num(res, MAX(f->size, s->size), CLEAR_TAIL);
+
+  f_d = f->digits;
+  s_d = s->digits;
+  res_d = res->digits;
+
+  high_min = res->digits + MIN(f->size, s->size) - 1;
+  high_max = res->digits + MAX(f->size, s->size) - 1;
+  
+  while(res_d <= high_min) {
+    // ...
+    ++res_d;
+  }
+
+  while(res_d <= high_max) {
+    // ...
+    ++res_d;
+  }
+
+  // process overflow
+}
+
+void ln_low_sub(const long_num *f, const long_num *s, long_num *res) {
+  // needs implementation
+}
+
+void ln_extend_num(long_num *num, int size, int flag) {
+  // needs implementation
+  unsigned int *d;
+  unsigned int *high;
+  
+  if(flag == CLEAR_ALL) {
+    high = num->digits + num->size - 1;
+    for(d = num->digits; d <= high; ++d) {
+      *d = 0;
+    }
+  }
+  
+  if(num->size < size) {
+    num->digits = (unsigned int*) realloc(num->digits, size);
+    d = num->digits + num->size;
+    high = num->digits + size - 1;
+    num->size = size;
+    while(d <= high) {
+      *d = 0;
+      ++d;
+    }
+  }
 }
 
 void ln_print_hex(const long_num *num) {
   // needs correction
   unsigned int *d;
+  unsigned int *high;
   register unsigned int digit;
   register unsigned int hex;
   
-  char strhexbuf[2*sizeof(unsigned int)+1];
+  char strhexbuf[2*sizeof(unsigned int) + 1];
   char *strptr;
   
   if(num == NULL) {
@@ -133,18 +201,24 @@ void ln_print_hex(const long_num *num) {
     printf("0");
     return;
   }
-  
-  for(d = &num->digits[num->size-1]; d >= num->digits; --d) {
+
+  high = num->digits + num->size - 1;
+  for(d = high; d >= num->digits; --d) {
     digit = *d;
-    strptr = strhexbuf+2*sizeof(unsigned int);
+    strptr = strhexbuf + 2*sizeof(unsigned int);
     *strptr = '\0'; 
     while(digit != 0){
       --strptr;
       hex = digit%16;
-      *strptr = (hex < 10 ? '0'+hex : 'a'+hex-10);
-      digit >>= 4; 
+      *strptr = (hex < 10 ? '0' + hex : 'a' + hex - 10);
+      digit >>= 4;
+    }
+    if(d != high) {
+      while(strptr > strhexbuf) {
+        --strptr;
+        *strptr = '0';
+      }
     }
     printf("%s", strptr);
   }  
 }
-
