@@ -100,6 +100,10 @@ long_num* ln_create_from_hex_string(char *str, int len) {
 
 void ln_add(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
+
+  // for test
+  ln_low_add(f, s, res);
+  UNSET_NUM_FLG(res, FLG_ZERO);
 }
 
 void ln_sub(const long_num *f, const long_num *s, long_num *res) {
@@ -125,9 +129,9 @@ void ln_exp(const long_num *f, const long_num *s, long_num *res) {
 void ln_low_add(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
   unsigned long long sum_digits;
-  unsigned int overflow;
+  unsigned int carry;
   unsigned int *f_d, *s_d, *res_d, *d;
-  unsigned int *high_min, *high_max;
+  unsigned int *high_min, *high_max, *high;
   
   ln_extend_num(res, MAX(f->size, s->size), CLEAR_TAIL);
 
@@ -137,33 +141,37 @@ void ln_low_add(const long_num *f, const long_num *s, long_num *res) {
 
   high_min = res->digits + MIN(f->size, s->size) - 1;
   high_max = res->digits + MAX(f->size, s->size) - 1;
+  high = res->digits + res->size - 1;
   
-  overflow = 0;
+  carry = 0;
   while(res_d <= high_min) {
-    sum_digits = *s_d + *f_d + overflow;
-	*res_d = (unsigned int) sum_digits;
-	
-	overflow = (unsigned int) (sum_digits >> 4*sizeof(unsigned int));
+    sum_digits = *f_d + *s_d + carry;
+    *res_d = (unsigned int) sum_digits;
+
+    carry = (sum_digits >> 4*sizeof(unsigned int)) ? 1 : 0;
     ++f_d;
-	++s_d;
-	++res_d;
+    ++s_d;
+    ++res_d;
   }
 
   d = (f->size < s->size) ? f_d : s_d;
   while(res_d <= high_max) {
-	sum_digits = *d + overflow;
-	*res_d = (unsigned int) sum_digits;
+    sum_digits = *d + carry;
+    *res_d = (unsigned int) sum_digits;
 	
-	overflow = (unsigned int) (sum_digits >> 4*sizeof(unsigned int));
-	++d;
+    carry = (sum_digits >> 4*sizeof(unsigned int)) ? 1 : 0;
+    ++d;
     ++res_d;
   }
 
   // process overflow
-  if(overflow) {
-	res->digits = (unsigned int*) realloc(res->digits, (res->size + 1) * sizeof(unsigned int));
-	*(res->digits + res->size) = overflow;
-	++res->size;
+  if(carry) {
+    if(res_d > high) {
+      res->digits = (unsigned int*) realloc(res->digits, (res->size + 1) * sizeof(unsigned int));
+      res_d = res->digits + res->size;
+      ++res->size;
+    }
+    *res_d = 1;
   }
 }
 
