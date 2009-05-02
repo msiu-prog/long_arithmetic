@@ -128,8 +128,8 @@ void ln_exp(const long_num *f, const long_num *s, long_num *res) {
 
 void ln_low_add(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
-  unsigned long long sum_digits;
-  unsigned int carry;
+  unsigned long long int sum_digits;
+  unsigned long long int carry;
   unsigned int *f_d, *s_d, *res_d, *d;
   unsigned int *high_min, *high_max, *high;
   
@@ -145,21 +145,21 @@ void ln_low_add(const long_num *f, const long_num *s, long_num *res) {
   
   carry = 0;
   while(res_d <= high_min) {
-    sum_digits = *f_d + *s_d + carry;
+    sum_digits = (unsigned long long int) *f_d + (unsigned long long int) *s_d + carry;
     *res_d = (unsigned int) sum_digits;
-
-    carry = (sum_digits >> 4*sizeof(unsigned int)) ? 1 : 0;
+   
+    carry = (sum_digits >> 4*sizeof(unsigned long long int)) ? 1 : 0;
     ++f_d;
     ++s_d;
     ++res_d;
   }
 
-  d = (f->size < s->size) ? f_d : s_d;
+  d = (f->size > s->size) ? f_d : s_d;
   while(res_d <= high_max) {
-    sum_digits = *d + carry;
+    sum_digits = (unsigned long long int) *d + carry;
     *res_d = (unsigned int) sum_digits;
 	
-    carry = (sum_digits >> 4*sizeof(unsigned int)) ? 1 : 0;
+    carry = (sum_digits >> 4*sizeof(unsigned long long int)) ? 1 : 0;
     ++d;
     ++res_d;
   }
