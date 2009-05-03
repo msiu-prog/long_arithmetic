@@ -287,7 +287,7 @@ int ln_cmp(const long_num *f, const long_num *s) {
   if(ln_sign(f) == ln_sign(s)) {
     res = (ln_sign(f) == 0) ? 0 : (ln_low_cmp(f, s) * ln_sign(f));
   } else {
-    res ((ln_sign(f) == 1) || (ln_sign(s) == -1)) ? 1 : -1;
+    res = ((ln_sign(f) == 1) || (ln_sign(s) == -1)) ? 1 : -1;
   }
   
   return res;
@@ -295,9 +295,9 @@ int ln_cmp(const long_num *f, const long_num *s) {
 
 int ln_low_cmp(const long_num *f, const long_num *s) {
   // needs correction
-  long_num *p
+  const long_num *p;
   unsigned int *f_d, *s_d, *d;
-  unsigned int high;
+  unsigned int *high;
   
   if(f->size != s->size) {
     p = (f->size > s->size) ? f : s;
@@ -317,10 +317,10 @@ int ln_low_cmp(const long_num *f, const long_num *s) {
   
   while(f_d >= f->digits) {
     if(*f_d != *s_d) {
-	    return (*f_d > *s_d) ? 1 : -1;
-	  }
-	  --f_d;
-	  --s_d;
+      return (*f_d > *s_d) ? 1 : -1;
+    }
+    --f_d;
+    --s_d;
   }
   
   return 0;
