@@ -279,3 +279,18 @@ void ln_print_hex(const long_num *num) {
     printf("%s", strptr);
   }  
 }
+
+int ln_cmp(const long_num *f, const long_num *s) {
+  // needs implementation
+  return 0;
+}
+
+int ln_low_cmp(const long_num *f, const long_num *s) {
+  // needs implementation
+  return 0;
+}
+
+int ln_sign(const long_num* f) {
+  // needs implementation
+  return 0;
+}

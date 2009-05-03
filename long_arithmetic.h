@@ -37,5 +37,9 @@ void ln_extend_num(long_num*, int, int);
 
 void ln_print_hex(const long_num*);
 
+int ln_cmp(const long_num*, const long_num*);
+int ln_low_cmp(const long_num*, const long_num*);
+int ln_sign(const long_num*);
+
 #endif /* #ifndef _LONG_ARITHMETIC_H_ */
 
