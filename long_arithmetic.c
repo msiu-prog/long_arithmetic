@@ -108,6 +108,10 @@ void ln_add(const long_num *f, const long_num *s, long_num *res) {
 
 void ln_sub(const long_num *f, const long_num *s, long_num *res) {
   // needs implementation
+
+  // for test
+  ln_low_sub(f, s, res);
+  UNSET_NUM_FLG(res, FLG_ZERO);
 }
 
 void ln_mult(const long_num *f, const long_num *s, long_num *res) {
@@ -127,7 +131,7 @@ void ln_exp(const long_num *f, const long_num *s, long_num *res) {
 }
 
 void ln_low_add(const long_num *f, const long_num *s, long_num *res) {
-  // needs implementation
+  // needs correction
   unsigned long long int sum_digits;
   unsigned long long int carry;
   unsigned int *f_d, *s_d, *res_d, *d;
@@ -176,7 +180,35 @@ void ln_low_add(const long_num *f, const long_num *s, long_num *res) {
 }
 
 void ln_low_sub(const long_num *f, const long_num *s, long_num *res) {
-  // needs implementation
+  // needs correction
+  unsigned int carry, carry_tmp;
+  unsigned int *f_d, *s_d, *res_d;
+  unsigned int *high_min, *high_max;
+
+  ln_extend_num(res, f->size, CLEAR_TAIL);
+
+  f_d = f->digits;
+  s_d = s->digits;
+  res_d = res->digits;
+
+  high_min = res->digits + s->size - 1;
+  high_max = res->digits + f->size - 1;
+
+  carry = 0;
+  while(res_d <= high_max) {
+    carry_tmp = (*f_d < carry) ? 1 : 0;
+    *res_d = *f_d - carry;
+    
+    if(res_d <= high_min) {
+      carry_tmp = (carry_tmp || (*res_d < *s_d)) ? 1 : 0;
+      *res_d -= *s_d;
+    }
+    
+    carry = carry_tmp;
+    ++f_d;
+    ++s_d;
+    ++res_d;
+  }
 }
 
 void ln_extend_num(long_num *num, int size, int flag) {
