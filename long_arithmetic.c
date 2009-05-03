@@ -281,16 +281,52 @@ void ln_print_hex(const long_num *num) {
 }
 
 int ln_cmp(const long_num *f, const long_num *s) {
-  // needs implementation
-  return 0;
+  // needs correction
+  int res = 0;
+  
+  if(ln_sign(f) == ln_sign(s)) {
+    res = (ln_sign(f) == 0) ? 0 : (ln_low_cmp(f, s) * ln_sign(f));
+  } else {
+    res ((ln_sign(f) == 1) || (ln_sign(s) == -1)) ? 1 : -1;
+  }
+  
+  return res;
 }
 
 int ln_low_cmp(const long_num *f, const long_num *s) {
-  // needs implementation
+  // needs correction
+  long_num *p
+  unsigned int *f_d, *s_d, *d;
+  unsigned int high;
+  
+  if(f->size != s->size) {
+    p = (f->size > s->size) ? f : s;
+    d = p->digits + p->size - 1;
+    high = p->digits + MIN(f->size, s->size);
+    
+    while(d >= high) {
+      if(*d) {
+        return (p == f) ? 1 : -1;
+      }
+      --d;
+    }
+  }
+  
+  f_d = f->digits + MIN(f->size, s->size) - 1;
+  s_d = s->digits + MIN(f->size, s->size) - 1;
+  
+  while(f_d >= f->digits) {
+    if(*f_d != *s_d) {
+	    return (*f_d > *s_d) ? 1 : -1;
+	  }
+	  --f_d;
+	  --s_d;
+  }
+  
   return 0;
 }
 
-int ln_sign(const long_num* f) {
-  // needs implementation
-  return 0;
+int ln_sign(const long_num* num) {
+  // needs correction
+  return (ISSET_NUM_FLG(num, FLG_ZERO) ? 0 : (ISSET_NUM_FLG(num, FLG_NEGATIVE) ? -1 : 1));
 }
