@@ -94,24 +94,73 @@ long_num* ln_create_from_hex_string(char *str, int len) {
     }
     *d = digit;
   }
+
+  if(ln_is_zero(p)) {
+    SET_NUM_FLG(p, FLG_ZERO);
+  }
   
   return p;
 }
 
 void ln_add(const long_num *f, const long_num *s, long_num *res) {
-  // needs implementation
+  // needs correction
+  const long_num *l, *g;
 
-  // for test
-  ln_low_add(f, s, res);
-  UNSET_NUM_FLG(res, FLG_ZERO);
+  if(ln_low_cmp(f, s) < 0) {
+    l = f; g = s;
+  } else {
+    l = s; g = f;
+  }
+  
+  if(ln_sign(l) == 0) {
+    ln_cpy(g, res);
+  } else if(ln_sign(f) == ln_sign(s)) {
+    ln_low_add(g, l, res);
+    res->flags = g->flags;
+  } else {
+    ln_low_sub(g, l, res);
+    res->flags = g->flags;
+    if(ln_is_zero(res)) {
+      SET_NUM_FLG(res, FLG_ZERO);
+    }
+  }
 }
 
 void ln_sub(const long_num *f, const long_num *s, long_num *res) {
-  // needs implementation
+  // needs correction
+  const long_num *l, *g;
 
-  // for test
-  ln_low_sub(f, s, res);
-  UNSET_NUM_FLG(res, FLG_ZERO);
+  if(ln_sign(s) == 0) {
+    ln_cpy(f, res);
+  } else if(ln_sign(f) == 0) {
+    ln_cpy(s, res);
+    if(ISSET_NUM_FLG(s, FLG_NEGATIVE)) {
+      UNSET_NUM_FLG(res, FLG_NEGATIVE);
+    } else {
+      SET_NUM_FLG(res, FLG_NEGATIVE);
+    }
+  } else if(ln_sign(f) != ln_sign(s)) {
+    ln_low_add(f, s, res);
+    res->flags = f->flags;
+  } else {
+    if(ln_low_cmp(f, s) < 0) {
+      l = f; g = s;
+    } else {
+      l = s; g = f;
+    }
+    ln_low_sub(g, l, res);
+    res->flags = g->flags;
+    if(g != f) {
+       if(ISSET_NUM_FLG(s, FLG_NEGATIVE)) {
+         UNSET_NUM_FLG(res, FLG_NEGATIVE);
+       } else {
+         SET_NUM_FLG(res, FLG_NEGATIVE);
+       }
+    }
+    if(ln_is_zero(res)) {
+      SET_NUM_FLG(res, FLG_ZERO);
+    }
+  }
 }
 
 void ln_mult(const long_num *f, const long_num *s, long_num *res) {
@@ -326,7 +375,48 @@ int ln_low_cmp(const long_num *f, const long_num *s) {
   return 0;
 }
 
-int ln_sign(const long_num* num) {
+int ln_sign(const long_num *num) {
   // needs correction
   return (ISSET_NUM_FLG(num, FLG_ZERO) ? 0 : (ISSET_NUM_FLG(num, FLG_NEGATIVE) ? -1 : 1));
+}
+
+void ln_cpy(const long_num *src, long_num *dest) {
+  ln_low_cpy(src, dest);
+  dest->flags = src->flags;
+}
+
+void ln_low_cpy(const long_num *src, long_num *dest) {
+  //needs correction
+  unsigned int *src_d, *dest_d;
+  unsigned int *high;
+  
+  ln_extend_num(dest, src->size, CLEAR_TAIL);
+
+  src_d = src->digits;
+  dest_d = dest->digits;
+  high = src->digits + src->size - 1;
+
+  while(src_d <= high) {
+    *dest_d = *src_d;
+    
+    ++src_d;
+    ++dest_d;
+  }
+}
+
+int ln_is_zero(const long_num *num) {
+  unsigned int *d;
+  unsigned int *high;
+
+  d = num->digits;
+  high = num->digits + num->size - 1;
+  
+  while(d <= high) {
+    if(*d) {
+      return 0;
+    }
+    ++d;
+  }
+
+  return 1;
 }
