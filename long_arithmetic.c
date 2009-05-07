@@ -164,7 +164,52 @@ void ln_sub(const long_num *f, const long_num *s, long_num *res) {
 }
 
 void ln_mult(const long_num *f, const long_num *s, long_num *res) {
-  // needs implementation
+  // needs correction
+  unsigned long long int buf;
+  unsigned int carry;
+  unsigned int *f_d, *s_d, *res_d, *res_offset;
+  unsigned int *f_high, *s_high;
+
+  ln_extend_num(res, f->size + s->size, CLEAR_ALL);
+
+  if(ln_sign(f) == 0  || ln_sign(s) == 0) {
+    SET_NUM_FLG(res, FLG_ZERO);
+    return;
+  }
+  
+  carry = 0;
+  
+  f_high = f->digits + f->size - 1;
+  s_high = s->digits + s->size - 1;
+
+  res_offset = res->digits;
+  f_d = f->digits;
+
+  while(f_d <= f_high) {
+    s_d = s->digits;
+    res_d = res_offset;
+    
+    while(s_d <= s_high) {
+      buf = (unsigned long long int) (*f_d) * (*s_d) + (*res_d) + carry;
+      *res_d = (unsigned int) buf;
+      carry = (unsigned int) (buf >> 4*sizeof(unsigned long long int));
+      
+      ++s_d;
+      ++res_d;
+    }
+    
+    ++f_d;
+    ++res_offset;
+  }
+
+  *res_d = carry;
+
+  UNSET_NUM_FLG(res, FLG_ZERO);
+  if(ln_sign(f) == ln_sign(s)) {
+    UNSET_NUM_FLG(res, FLG_NEGATIVE);
+  } else {
+    SET_NUM_FLG(res, FLG_NEGATIVE);
+  }
 }
 
 void ln_div(const long_num *f, const long_num *s, long_num *res) {
