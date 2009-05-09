@@ -177,8 +177,6 @@ void ln_mult(const long_num *f, const long_num *s, long_num *res) {
     return;
   }
   
-  carry = 0;
-  
   f_high = f->digits + f->size - 1;
   s_high = s->digits + s->size - 1;
 
@@ -186,6 +184,7 @@ void ln_mult(const long_num *f, const long_num *s, long_num *res) {
   f_d = f->digits;
 
   while(f_d <= f_high) {
+    carry = 0;
     s_d = s->digits;
     res_d = res_offset;
     
@@ -197,6 +196,7 @@ void ln_mult(const long_num *f, const long_num *s, long_num *res) {
       ++s_d;
       ++res_d;
     }
+    *res_d = carry;
     
     ++f_d;
     ++res_offset;
