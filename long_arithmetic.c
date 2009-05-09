@@ -201,9 +201,7 @@ void ln_mult(const long_num *f, const long_num *s, long_num *res) {
     ++f_d;
     ++res_offset;
   }
-
-  *res_d = carry;
-
+  
   UNSET_NUM_FLG(res, FLG_ZERO);
   if(ln_sign(f) == ln_sign(s)) {
     UNSET_NUM_FLG(res, FLG_NEGATIVE);
