@@ -22,14 +22,16 @@ class LongArithmeticsTest < Test::Unit::TestCase
 
   def sendcmd(cmd)
     unless @process.nil?
-      @process.print cmd
+      @write.print cmd
+      @read.gets if cmd == POPCMD
+      @write.flush
     end
   end
 
   def sendnum(num)
     unless @process.nil?
       sendcmd SPLITCMD
-      # do something for send number to process 
+      @write.print num.to_s(16).gsub(/-/, '~')
       sendcmd SPLITCMD  
     end
   end
@@ -38,19 +40,34 @@ class LongArithmeticsTest < Test::Unit::TestCase
     @num = nil
     unless @process.nil?
       sendcmd TOPCMD
-      # do something for recieve number from process
+      @num = @read.gets.to_i(16)
       sendcmd SPLITCMD
     end
     @num
   end
 
   def setup
-    @process = IO.popen("#{PROGNAME}", "r+")
+    subproc_read, @write = IO.pipe
+    @read, subproc_write = IO.pipe
+    if (@process = fork)
+      subproc_read.close
+      subproc_write.close
+    else
+      @write.close
+      @read.close
+
+      $stdin.reopen subproc_read
+      $stdout.reopen subproc_write
+
+      exec PROGNAME
+      exit 1
+    end
     @num = nil
   end
 
   def teardown
     sendcmd EXITCMD
+    Process.waitpid @process
   end
 
   def test_start_exit
@@ -113,5 +130,43 @@ class LongArithmeticsTest < Test::Unit::TestCase
     sendcmd POPCMD
   end
 
+  def test_mult_simple
+    sendnum 12
+    sendnum 6
+    sendcmd MULTCMD
+    assert_equal(72, recievenum)
+
+    sendcmd POPCMD
+    
+    sendnum 3
+    sendnum -4
+    sendnum 2
+    sendcmd MULTCMD
+    assert_equal(-8, recievenum)
+ 
+    sendcmd MULTCMD
+    assert_equal(-24, recievenum)
+  end
+  
+  def test_mult_special
+    a = 93878492347712341634713254403146132987462340238410236412333339
+    b = 15970815719482634412340398470932847783247123642364923487621934786192387469234
+    
+    sendnum a
+    sendnum b
+    sendcmd MULTCMD
+    assert_equal(a*b, recievenum)
+    
+    #test on wiki number
+    a = -2560135624671332861315724674672476481682
+    b = 54308428790203478762340052723346983453487023489987231275412390872348475
+    #b is the wiki number, see http://ru.wikipedia.org/wiki/%D0%92%D0%B8%D0%BA%D0%B8%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F:54308428790203478762340052723346983453487023489987231275412390872348475 
+    
+    sendnum a
+    sendnum b
+    sendcmd MULTCMD
+    assert_equal(a*b, recievenum)
+    
+  end
 end
 

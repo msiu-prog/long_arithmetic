@@ -152,6 +152,7 @@ void calc_top(void) {
     ln_print_hex(p);
   }
   printf("\n");
+  fflush(stdout);
 }
 
 void calc_pop(void) {
@@ -161,6 +162,7 @@ void calc_pop(void) {
     ln_print_hex(p);
   }
   printf("\n");
+  fflush(stdout);
 }
 
 void calc_push(void) {
